@@ -13,7 +13,7 @@ class VConfig
         PropertyNameCaseInsensitive = true,
     };
     [JsonPropertyName("host")]
-    public string Host { get; set; } = "http://127.0.0.1:8080/";
+    public string Host { get; set; } = "http://*:8080/";
     [JsonPropertyName("openai_key")]
     public string OpenAIKey { get; set; } = "";
     [JsonPropertyName("proxy")]
@@ -28,7 +28,7 @@ class VConfig
     public string LogOutputMode { get; set; } = "Both";
 
     [JsonPropertyName("max_request_per_minute")]
-    public int MaxRequestPerMinute { get; set; } = 15;
+    public int MaxRequestPerMinute { get; set; } = 5;
 
     public static VConfig LoadConfig()
     {

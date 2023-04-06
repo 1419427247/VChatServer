@@ -18,7 +18,8 @@ class ChatWithAIMessage : RequestMessage
 
         chatRequestBody.Messages = Messages!;
         chatRequestBody.Temperature = Temperature;
-        
+
+        VChat.logger.Info($"ChatBot request: {chatRequestBody}");
         chatResponseBody = await VChat.bot.ChatCompletionAsync(chatRequestBody);
         
         VChat.logger.Info($"ChatBot response: {chatResponseBody}");

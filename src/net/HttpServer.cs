@@ -39,7 +39,6 @@ public class HttpServer
             {
                 IPMinuteCount.Clear();
                 Task.Delay(60000).Wait();
-                System.Console.WriteLine("Clear");
             }
         });
     }
@@ -61,8 +60,8 @@ public class HttpServer
         VChat.logger.Info($"Received data from {httpListenerContext.Request.RemoteEndPoint}: {data}");
         RequestMessage? requestMessage = null;
         ResponseMessage? responseMessage = null;
-        // try
-        // {
+        try
+        {
             if (IPMinuteCount.ContainsKey(httpListenerContext.Request.RemoteEndPoint.Address.ToString()) == false)
             {
                 IPMinuteCount.Add(httpListenerContext.Request.RemoteEndPoint.Address.ToString(), 0);
@@ -105,14 +104,14 @@ public class HttpServer
                     };
                 }
             }
-        // }
-        // catch (Exception e)
-        // {
-        //     responseMessage = new ErrorResponseMessage()
-        //     {
-        //         Text = e.Message
-        //     };
-        // }
+        }
+        catch (Exception e)
+        {
+            responseMessage = new ErrorResponseMessage()
+            {
+                Text = e.Message
+            };
+        }
         string responseJson =
         "{\"type\": \"" + responseMessage!.GetType().GetCustomAttribute<JsonType>()?.Name + "\"," +
         "\"content\": " + responseMessage.ToString() + "}";

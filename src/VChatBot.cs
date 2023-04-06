@@ -31,8 +31,8 @@ public class ChatRequestBody
     public string Model { set; get; } = "gpt-3.5-turbo";
     [JsonPropertyName("temperature")]
     public double Temperature { set; get; } = 1.0;
-    // [JsonPropertyName("max_tokens")]
-    public int MaxTokens { set; get; } = 512;
+    [JsonPropertyName("max_tokens")]
+    public int MaxTokens { set; get; } = 1024;
     [JsonPropertyName("messages")]
     public List<Message> Messages { set; get; } = new List<Message>();
     public override string ToString()
@@ -73,13 +73,13 @@ public class VChatBot
         }
         client = new HttpClient();
         client.DefaultRequestHeaders.Add("Authorization", "Bearer " + openaiApiKey);
-        client.Timeout = TimeSpan.FromSeconds(30);
     }
     public async Task<ChatResponseBody> ChatCompletionAsync(ChatRequestBody chatRequestBody)
     {
         var content = new StringContent(chatRequestBody.ToString(), Encoding.UTF8, "application/json");
         var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content);
         var json = Encoding.UTF8.GetString(Encoding.Default.GetBytes(await response.Content.ReadAsStringAsync()));
+        VChat.logger.Info($"ChatBot response: {json}");
         ChatResponseBody? charResponseBody = JsonSerializer.Deserialize<ChatResponseBody>(json);
         if (charResponseBody == null)
         {
