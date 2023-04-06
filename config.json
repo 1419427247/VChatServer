@@ -1,0 +1,10 @@
+{
+    "host": "http://127.0.0.1:8080/",
+    "proxy": "socks5://127.0.0.1:10808",
+    "sqlite": "Data Source=vchat.db;Version=3;",
+    "openai_key": "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",
+    "log_file_path": "log/",
+    "minimum_log_level": "Debug",
+    "log_output_mode": "Both",
+    "max_request_per_minute": 4
+}
