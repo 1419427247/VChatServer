@@ -1,5 +1,5 @@
 namespace VChatService.Model;
 public abstract class RequestMessage
 {
-    public abstract ResponseMessage Process();
+    public abstract Task<ResponseMessage> Process();
 }

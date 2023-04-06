@@ -13,7 +13,6 @@ public class HttpServer
     private Dictionary<string, int> IPMinuteCount = new();
     public HttpServer(string prefix)
     {
-        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         listener = new HttpListener();
         listener.Prefixes.Add(prefix);
         VChat.logger.Info("Already added prefix: " + prefix);
@@ -49,7 +48,7 @@ public class HttpServer
     {
         listener.Stop();
     }
-    private void OnListenerCallback(IAsyncResult async_result)
+    private async void OnListenerCallback(IAsyncResult async_result)
     {
         HttpListener httpListener = (HttpListener)async_result.AsyncState!;
         HttpListenerContext httpListenerContext = httpListener.EndGetContext(async_result);
@@ -62,8 +61,8 @@ public class HttpServer
         VChat.logger.Info($"Received data from {httpListenerContext.Request.RemoteEndPoint}: {data}");
         RequestMessage? requestMessage = null;
         ResponseMessage? responseMessage = null;
-        try
-        {
+        // try
+        // {
             if (IPMinuteCount.ContainsKey(httpListenerContext.Request.RemoteEndPoint.Address.ToString()) == false)
             {
                 IPMinuteCount.Add(httpListenerContext.Request.RemoteEndPoint.Address.ToString(), 0);
@@ -89,7 +88,7 @@ public class HttpServer
                 }
                 if (requestMessage != null)
                 {
-                    responseMessage = requestMessage.Process();
+                    responseMessage = await requestMessage.Process();
                     if (responseMessage == null)
                     {
                         responseMessage = new ErrorResponseMessage()
@@ -106,14 +105,14 @@ public class HttpServer
                     };
                 }
             }
-        }
-        catch (Exception e)
-        {
-            responseMessage = new ErrorResponseMessage()
-            {
-                Text = e.Message
-            };
-        }
+        // }
+        // catch (Exception e)
+        // {
+        //     responseMessage = new ErrorResponseMessage()
+        //     {
+        //         Text = e.Message
+        //     };
+        // }
         string responseJson =
         "{\"type\": \"" + responseMessage!.GetType().GetCustomAttribute<JsonType>()?.Name + "\"," +
         "\"content\": " + responseMessage.ToString() + "}";

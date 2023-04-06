@@ -11,12 +11,10 @@ namespace VChatService.Model
         [JsonPropertyName("password")]
         public string? Password { get; set; }
 
-        public override ResponseMessage Process()
+        public override async Task <ResponseMessage> Process()
         {
             var response = new LoginResponseMessage();
-
             response.Token = "1234567890";
-            System.Console.WriteLine("Login request received from " + Username + " with password " + Password);
             return response;
         }
     }

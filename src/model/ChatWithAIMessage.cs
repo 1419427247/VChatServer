@@ -10,27 +10,25 @@ class ChatWithAIMessage : RequestMessage
     public List<Message>? Messages { get; set; }
     [JsonPropertyName("temperature")]
     public double Temperature { get; set; } = 1.0f;
-    public override ResponseMessage Process()
+    public override async Task<ResponseMessage> Process()
     {
-        var response = new ChatWithAIResponseMessage();
+        var chatWithAIResponseMessage = new ChatWithAIResponseMessage();
         ChatRequestBody chatRequestBody = new ChatRequestBody();
         ChatResponseBody? chatResponseBody = null;
 
         chatRequestBody.Messages = Messages!;
         chatRequestBody.Temperature = Temperature;
         
-        VChat.bot.ChatCompletionAsync(chatRequestBody).ContinueWith((task) =>
-        {
-            chatResponseBody = task.Result;
-        }).Wait();
+        chatResponseBody = await VChat.bot.ChatCompletionAsync(chatRequestBody);
         
-        if (chatResponseBody == null)
+        VChat.logger.Info($"ChatBot response: {chatResponseBody}");
+        if (chatResponseBody == null || chatResponseBody?.Choices == null || chatResponseBody?.Choices.Count == 0)
         {
-            response.Text = "ChatBot is not available.";
-            return response;
+            chatWithAIResponseMessage.Text = "ChatBot is not available.";
+            return chatWithAIResponseMessage;
         }
-        response.Text = chatResponseBody?.Choices[0]?.Message?.Content;
-        return response;
+        chatWithAIResponseMessage.Text = chatResponseBody?.Choices[0]?.Message?.Content;
+        return chatWithAIResponseMessage;
     }
 }
 

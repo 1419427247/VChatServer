@@ -62,7 +62,7 @@ public class ChatResponseBody
 public class VChatBot
 {
     string openaiApiKey;
-    WebProxy? proxy;
+    HttpClient client;
     public VChatBot(string openaiApiKey, string proxy)
     {
         this.openaiApiKey = openaiApiKey;
@@ -71,12 +71,12 @@ public class VChatBot
             WebRequest.DefaultWebProxy = new WebProxy(proxy);
             VChat.logger.Info("Using proxy: " + proxy);
         }
+        client = new HttpClient();
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + openaiApiKey);
+        client.Timeout = TimeSpan.FromSeconds(30);
     }
     public async Task<ChatResponseBody> ChatCompletionAsync(ChatRequestBody chatRequestBody)
     {
-        HttpClient client = new HttpClient();
-        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + openaiApiKey);
-        client.Timeout = TimeSpan.FromSeconds(30);
         var content = new StringContent(chatRequestBody.ToString(), Encoding.UTF8, "application/json");
         var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content);
         var json = Encoding.UTF8.GetString(Encoding.Default.GetBytes(await response.Content.ReadAsStringAsync()));
