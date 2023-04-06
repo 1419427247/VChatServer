@@ -13,6 +13,7 @@ public class HttpServer
     private Dictionary<string, int> IPMinuteCount = new();
     public HttpServer(string prefix)
     {
+        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         listener = new HttpListener();
         listener.Prefixes.Add(prefix);
         VChat.logger.Info("Already added prefix: " + prefix);
