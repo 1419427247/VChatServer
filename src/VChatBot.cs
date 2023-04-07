@@ -78,7 +78,7 @@ public class VChatBot
         if (config.Proxy != String.Empty)
         {
             WebRequest.DefaultWebProxy = new WebProxy(config.Proxy);
-            VChat.logger.Info("Using proxy: " + config.Proxy);
+            VChat.logger.Info(GetType(), "Using proxy: " + config.Proxy);
         }
         client = new HttpClient();
         client.DefaultRequestHeaders.Add("Authorization", "Bearer " + config.OpenAIKey);
@@ -88,12 +88,13 @@ public class VChatBot
         var content = new StringContent(chatRequestBody.ToString(), Encoding.UTF8, "application/json");
         var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content);
         var json = Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(await response.Content.ReadAsStringAsync()));
-        VChat.logger.Info($"ChatBot response: {json}");
+        VChat.logger.Info(GetType(), $"response: {json}");
         ChatResponseBody? charResponseBody = JsonSerializer.Deserialize<ChatResponseBody>(json);
         if (charResponseBody == null)
         {
             throw new Exception("ChatBot is not available.");
         }
+        VChat.logger.Info(GetType(), $"response: {charResponseBody}");
         return charResponseBody;
     }
 }

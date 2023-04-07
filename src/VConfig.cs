@@ -20,6 +20,8 @@ class VConfig
     {
         Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
         PropertyNameCaseInsensitive = true,
+        //对空值不进行序列化
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
     [JsonPropertyName("sqlite")]
     public VSqliteConfig Sqlite { get; set; } = new VSqliteConfig();

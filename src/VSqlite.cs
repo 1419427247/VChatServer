@@ -67,7 +67,7 @@ public class VSqlite
         return value;
     }
 
-    public async Task<T> InsertSync<T>(T value) where T : notnull
+    public async Task<T> InsertASync<T>(T value) where T : notnull
     {
         Type type = value.GetType();
         TableAttribute? tableAttribute = type.GetCustomAttribute<TableAttribute>();

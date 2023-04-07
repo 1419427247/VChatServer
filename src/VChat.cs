@@ -30,6 +30,18 @@ internal static class VChat
     {
         return DateTime.Now.Ticks / 10000000;
     }
+
+    internal static string GetRandomString(int length)
+    {
+        string str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < length; i++)
+        {
+            sb.Append(str[random.Next(0, str.Length)]);
+        }
+        return sb.ToString();
+    }
 }
 
 //修改1000条数据

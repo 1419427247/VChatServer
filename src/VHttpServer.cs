@@ -13,7 +13,7 @@ namespace VChatService;
 public class VHttpServerConfig
 {
     [JsonPropertyName("host")]
-    public string Host { get; set; } = "http://localhost:8080/";
+    public string Host { get; set; } = "http://127.0.0.1:8080/";
     [JsonPropertyName("max_request_count")]
     public int MaxRequestCount { get; set; } = 30;
     [JsonPropertyName("refresh_second")]
@@ -31,6 +31,9 @@ public class VHttpServer
         this.config = config;
         listener = new HttpListener();
         listener.Prefixes.Add(config.Host);
+        listener.TimeoutManager.IdleConnection = TimeSpan.FromMinutes(1);
+        listener.TimeoutManager.HeaderWait = TimeSpan.FromMinutes(1);
+        listener.TimeoutManager.DrainEntityBody = TimeSpan.FromMinutes(1);
     }
     public void Start()
     {
@@ -46,12 +49,12 @@ public class VHttpServer
         }
         listener.Start();
         listener.BeginGetContext(OnListenerCallback, listener);
-        Task.Run(() =>
+        Task.Run(async () =>
         {
             while (listener.IsListening)
             {
                 ipRequestCount.Clear();
-                Task.Delay(config.RefreshSecond * 1000).Wait();
+                await Task.Delay(config.RefreshSecond * 1000);
             }
         });
     }

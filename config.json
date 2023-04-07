@@ -4,7 +4,7 @@
     },
     "http_server": {
         "host": "http://127.0.0.1:8080/",
-        "max_request_count": 60,
+        "max_request_count": 30,
         "refresh_second": 60
     },
     "logger": {
@@ -13,7 +13,7 @@
         "log_output_mode": 2
     },
     "chat_bot": {
-        "openai_key": "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",
-        "proxy": "socks5://127.0.0.1:10808"
+        "openai_key": "",
+        "proxy": ""
     }
 }
