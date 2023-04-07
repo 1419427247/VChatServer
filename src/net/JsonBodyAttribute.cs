@@ -1,9 +1,9 @@
 namespace VChatService.Net
 {
-    internal class JsonType : Attribute
+    internal class JsonBodyAttribute : Attribute
     {
         public string Name { get; set; }
-        public JsonType(string name)
+        public JsonBodyAttribute(string name)
         {
             Name = name;
         }

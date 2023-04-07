@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Unicode;
 
 namespace VChatService.Model;
-public class ResponseMessage
+public class ResponseBody
 {
     public override string ToString()
     {

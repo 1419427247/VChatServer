@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace VChatService;
 public enum LogLevel
@@ -17,19 +18,27 @@ public enum LogOutputModel
     Both,
 }
 
+public class VLoggerConfig
+{
+    [JsonPropertyName("log_file_path")]
+    public string LogFilePath { get; set; } = "log";
+    [JsonPropertyName("minimum_log_level")]
+    public LogLevel MinimumLogLevel { get; set; } = LogLevel.Debug;
+    [JsonPropertyName("log_output_mode")]
+    public LogOutputModel LogOutputMode { get; set; } = LogOutputModel.Both;
+}
+
 public class VLogger
 {
-    private readonly LogLevel level;
-    private readonly LogOutputModel output;
     private FileStream? fileStream;
     private readonly ConcurrentQueue<string> logs = new ConcurrentQueue<string>();
-    public VLogger(string logFilePath, string minimumLogLevel, string logOutputMode)
+    VLoggerConfig config;
+    public VLogger(VLoggerConfig config)
     {
-        level = (LogLevel)Enum.Parse(typeof(LogLevel), minimumLogLevel);
-        output = (LogOutputModel)Enum.Parse(typeof(LogOutputModel), logOutputMode);
-        if (output == LogOutputModel.File || output == LogOutputModel.Both)
+        this.config = config;
+        if (config.LogOutputMode == LogOutputModel.File || config.LogOutputMode == LogOutputModel.Both)
         {
-            string directory = Path.GetDirectoryName(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, logFilePath))!;
+            string directory = Path.GetDirectoryName(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.LogFilePath))!;
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
@@ -46,7 +55,7 @@ public class VLogger
     {
         while (true)
         {
-            if (logs.TryDequeue(out string log))
+            if (logs.TryDequeue(out string? log))
             {
                 await fileStream!.WriteAsync(Encoding.UTF8.GetBytes(log));
                 await fileStream.FlushAsync();
@@ -60,10 +69,10 @@ public class VLogger
 
     public void Write(LogLevel level, string message)
     {
-        if (level >= this.level)
+        if (level >= config.MinimumLogLevel)
         {
             string log = $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] [{level.ToString()}] {message}{Environment.NewLine}";
-            if (output == LogOutputModel.Console || output == LogOutputModel.Both)
+            if (config.LogOutputMode == LogOutputModel.Console || config.LogOutputMode == LogOutputModel.Both)
             {
                 switch (level)
                 {
@@ -83,7 +92,7 @@ public class VLogger
                 Console.Write(log);
                 Console.ResetColor();
             }
-            if (output == LogOutputModel.File || output == LogOutputModel.Both)
+            if (config.LogOutputMode == LogOutputModel.File || config.LogOutputMode == LogOutputModel.Both)
             {
                 logs.Enqueue(log);
             }
@@ -108,5 +117,44 @@ public class VLogger
     public void Error(string message)
     {
         Write(LogLevel.Error, message);
+    }
+
+    public void Debug(string tag, string message)
+    {
+        Write(LogLevel.Debug, $"[{tag}] {message}");
+    }
+    public void Info(string tag, string message)
+    {
+        Write(LogLevel.Info, $"[{tag}] {message}");
+    }
+
+    public void Warning(string tag, string message)
+    {
+        Write(LogLevel.Warning, $"[{tag}] {message}");
+    }
+
+    public void Error(string tag, string message)
+    {
+        Write(LogLevel.Error, $"[{tag}] {message}");
+    }
+
+    public void Debug(Type type, string message)
+    {
+        Write(LogLevel.Debug, $"[{type.Name}] {message}");
+    }
+
+    public void Info(Type type, string message)
+    {
+        Write(LogLevel.Info, $"[{type.Name}] {message}");
+    }
+
+    public void Warning(Type type, string message)
+    {
+        Write(LogLevel.Warning, $"[{type.Name}] {message}");
+    }
+
+    public void Error(Type type, string message)
+    {
+        Write(LogLevel.Error, $"[{type.Name}] {message}");
     }
 }

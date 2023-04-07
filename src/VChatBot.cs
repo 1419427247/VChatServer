@@ -7,6 +7,15 @@ using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
 namespace VChatService;
+
+public class VChatBotConfig
+{
+    [JsonPropertyName("openai_key")]
+    public string OpenAIKey { get; set; } = "";
+    [JsonPropertyName("proxy")]
+    public string Proxy { get; set; } = "";
+}
+
 public class Message
 {
     [JsonPropertyName("role")]
@@ -32,7 +41,7 @@ public class ChatRequestBody
     [JsonPropertyName("temperature")]
     public double Temperature { set; get; } = 1.0;
     [JsonPropertyName("max_tokens")]
-    public int MaxTokens { set; get; } = 1024;
+    public int MaxTokens { set; get; } = 512;
     [JsonPropertyName("messages")]
     public List<Message> Messages { set; get; } = new List<Message>();
     public override string ToString()
@@ -44,15 +53,15 @@ public class ChatRequestBody
 public class ChatResponseBody
 {
     [JsonPropertyName("id")]
-    public string Id { set; get; }
+    public string? Id { set; get; }
     [JsonPropertyName("object")]
-    public string Object { set; get; }
+    public string? Object { set; get; }
     [JsonPropertyName("created")]
-    public int Created { set; get; }
+    public int? Created { set; get; }
     [JsonPropertyName("model")]
-    public string Model { set; get; }
+    public string? Model { set; get; }
     [JsonPropertyName("choices")]
-    public List<Choice> Choices { set; get; }
+    public List<Choice>? Choices { set; get; }
     public override string ToString()
     {
         return JsonSerializer.Serialize(this, VConfig.JsonSerializerOptions);
@@ -61,24 +70,24 @@ public class ChatResponseBody
 
 public class VChatBot
 {
-    string openaiApiKey;
     HttpClient client;
-    public VChatBot(string openaiApiKey, string proxy)
+    VChatBotConfig config;
+    public VChatBot(VChatBotConfig config)
     {
-        this.openaiApiKey = openaiApiKey;
-        if (proxy != String.Empty)
+        this.config = config;
+        if (config.Proxy != String.Empty)
         {
-            WebRequest.DefaultWebProxy = new WebProxy(proxy);
-            VChat.logger.Info("Using proxy: " + proxy);
+            WebRequest.DefaultWebProxy = new WebProxy(config.Proxy);
+            VChat.logger.Info("Using proxy: " + config.Proxy);
         }
         client = new HttpClient();
-        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + openaiApiKey);
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + config.OpenAIKey);
     }
     public async Task<ChatResponseBody> ChatCompletionAsync(ChatRequestBody chatRequestBody)
     {
         var content = new StringContent(chatRequestBody.ToString(), Encoding.UTF8, "application/json");
         var response = await client.PostAsync("https://api.openai.com/v1/chat/completions", content);
-        var json = Encoding.UTF8.GetString(Encoding.Default.GetBytes(await response.Content.ReadAsStringAsync()));
+        var json = Encoding.UTF8.GetString(Encoding.UTF8.GetBytes(await response.Content.ReadAsStringAsync()));
         VChat.logger.Info($"ChatBot response: {json}");
         ChatResponseBody? charResponseBody = JsonSerializer.Deserialize<ChatResponseBody>(json);
         if (charResponseBody == null)

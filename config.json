@@ -1,10 +1,19 @@
 {
-    "host": "http://*:8080/",
-    "openai_key": "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",
-    "proxy": "socks5://127.0.0.1:10808",
-    "sqlite": "Data Source=vchat.db;Version=3;",
-    "log_file_path": "log.txt",
-    "minimum_log_level": "Debug",
-    "log_output_mode": "Both",
-    "max_request_per_minute": 5
+    "sqlite": {
+        "connection_string": "Data Source=v_chat.db;Version=3;"
+    },
+    "http_server": {
+        "host": "http://127.0.0.1:8080/",
+        "max_request_count": 60,
+        "refresh_second": 60
+    },
+    "logger": {
+        "log_file_path": "log",
+        "minimum_log_level": 0,
+        "log_output_mode": 2
+    },
+    "chat_bot": {
+        "openai_key": "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",
+        "proxy": "socks5://127.0.0.1:10808"
+    }
 }

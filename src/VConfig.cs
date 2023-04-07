@@ -5,6 +5,15 @@ using System.Text.Unicode;
 
 namespace VChatService;
 
+class VConfigAttribute : Attribute
+{
+    public string Name { get; set; }
+    public VConfigAttribute(string name)
+    {
+        Name = name;
+    }
+}
+
 class VConfig
 {
     public static JsonSerializerOptions JsonSerializerOptions { get; } = new JsonSerializerOptions
@@ -12,23 +21,14 @@ class VConfig
         Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
         PropertyNameCaseInsensitive = true,
     };
-    [JsonPropertyName("host")]
-    public string Host { get; set; } = "http://*:8080/";
-    [JsonPropertyName("openai_key")]
-    public string OpenAIKey { get; set; } = "";
-    [JsonPropertyName("proxy")]
-    public string Proxy { get; set; } = "";
     [JsonPropertyName("sqlite")]
-    public string Sqlite { get; set; } = "Data Source=vchat.db;Version=3;";
-    [JsonPropertyName("log_file_path")]
-    public string LogFilePath { get; set; } = "log.txt";
-    [JsonPropertyName("minimum_log_level")]
-    public string MinimumLogLevel { get; set; } = "Debug";
-    [JsonPropertyName("log_output_mode")]
-    public string LogOutputMode { get; set; } = "Both";
-
-    [JsonPropertyName("max_request_per_minute")]
-    public int MaxRequestPerMinute { get; set; } = 5;
+    public VSqliteConfig Sqlite { get; set; } = new VSqliteConfig();
+    [JsonPropertyName("http_server")]
+    public VHttpServerConfig HttpServer { get; set; } = new VHttpServerConfig();
+    [JsonPropertyName("logger")]
+    public VLoggerConfig Logger { get; set; } = new VLoggerConfig();
+    [JsonPropertyName("chat_bot")]
+    public VChatBotConfig ChatBot { get; set; } = new VChatBotConfig();
 
     public static VConfig LoadConfig()
     {

@@ -13,18 +13,22 @@ namespace VChatService;
 internal static class VChat
 {
     public static VConfig config = VConfig.LoadConfig();
-    public static VLogger logger = new VLogger(config.LogFilePath, config.MinimumLogLevel, config.LogOutputMode);
-    public static SqliteHelper sqlite = new SqliteHelper(config.Sqlite);
-    public static HttpServer server = new HttpServer(config.Host);
-    public static VChatBot bot = new VChatBot(config.OpenAIKey, config.Proxy);
+    public static VLogger logger = new VLogger(config.Logger);
+    public static VSqlite sqlite = new VSqlite(config.Sqlite);
+    public static VHttpServer server = new VHttpServer(config.HttpServer);
+    public static VChatBot bot = new VChatBot(config.ChatBot);
 
     private static void Main(string[] args)
     {
         server.Start();
         while (true)
         {
-
         }
+    }
+
+    public static long GetNowSeconds()
+    {
+        return DateTime.Now.Ticks / 10000000;
     }
 }
 
