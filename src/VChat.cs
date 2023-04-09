@@ -16,10 +16,23 @@ internal static class VChat
     public static VLogger logger = new VLogger(config.Logger);
     public static VSqlite sqlite = new VSqlite(config.Sqlite);
     public static VHttpServer server = new VHttpServer(config.HttpServer);
+    // public static  VTCPServer server = new VTCPServer(config.TCPServer);
     public static VChatBot bot = new VChatBot(config.ChatBot);
 
     private static void Main(string[] args)
     {
+        // await foreach (var line in bot.ChatCompletionStreamAsync(new ChatRequestBody()
+        // {
+        //     Messages = new List<ChatRequestMessageBody>()
+        //     {
+        //         new ChatRequestMessageBody(){
+        //             Role = "user",
+        //             Content = "你好，请写一篇10字的文章，表达对中国的赞美之泉",
+        //         }
+        //     },
+        // })) { 
+        //     System.Console.Write(line);
+        // };
         server.Start();
         while (true)
         {

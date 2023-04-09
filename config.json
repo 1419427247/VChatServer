@@ -3,8 +3,8 @@
         "connection_string": "Data Source=v_chat.db;Version=3;"
     },
     "http_server": {
-        "host": "http://127.0.0.1:8080/",
-        "max_request_count": 30,
+        "host": "http://*:8080/",
+        "max_request_count": 20,
         "refresh_second": 60
     },
     "logger": {

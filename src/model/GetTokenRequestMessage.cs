@@ -15,7 +15,7 @@ class GetTokenRequestMessage : RequestBody
         {
             Token = VChat.GetRandomString(64),
             ExpireAt = VChat.GetNowSeconds() + 3600,
-            Count = 100
+            Count = 20
         };
         await VChat.sqlite.InsertASync(secretKey);
         return new GetTokenResponseMessage()

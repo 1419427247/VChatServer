@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Net;
+using System.Net.WebSockets;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -31,9 +32,6 @@ public class VHttpServer
         this.config = config;
         listener = new HttpListener();
         listener.Prefixes.Add(config.Host);
-        listener.TimeoutManager.IdleConnection = TimeSpan.FromMinutes(1);
-        listener.TimeoutManager.HeaderWait = TimeSpan.FromMinutes(1);
-        listener.TimeoutManager.DrainEntityBody = TimeSpan.FromMinutes(1);
     }
     public void Start()
     {
@@ -69,11 +67,10 @@ public class VHttpServer
         HttpListenerContext httpListenerContext = httpListener.EndGetContext(async_result);
         httpListener.BeginGetContext(OnListenerCallback, httpListener);
 
+
         RequestBody? requestMessage = null;
         ResponseBody? responseMessage = null;
-
         string adress = httpListenerContext.Request.RemoteEndPoint.Address.ToString();
-
         if (httpListenerContext.Request.ContentLength64 > 1024 * 10)
         {
             responseMessage = new ErrorResponseMessage("请求内容过长");
@@ -95,6 +92,7 @@ public class VHttpServer
                 }
                 else
                 {
+                    VChat.logger.Info($"Request from {adress}: {json}");
                     JsonElement jsonElement = JsonSerializer.Deserialize<JsonElement>(json);
                     if (jsonElement.TryGetProperty("type", out JsonElement typeJsonElement) && jsonElement.TryGetProperty("content", out JsonElement contextJsonElement))
                     {
@@ -104,7 +102,6 @@ public class VHttpServer
                             requestMessage = JsonSerializer.Deserialize(contextJsonElement.GetRawText(), contentType) as RequestBody;
                             if (requestMessage != null)
                             {
-                                VChat.logger.Info($"Request from {adress}: {json}");
                                 responseMessage = await requestMessage.Process();
 
                                 if (responseMessage == null)
@@ -133,7 +130,6 @@ public class VHttpServer
                 responseMessage = new ErrorResponseMessage(e.Message);
             }
         }
-
         string responseJson =
         "{\"type\": \"" + responseMessage!.GetType().GetCustomAttribute<JsonBodyAttribute>()?.Name + "\"," +
         "\"content\": " + responseMessage.ToString() + "}";
@@ -144,6 +140,8 @@ public class VHttpServer
         httpListenerContext.Response.ContentLength64 = buffer.Length;
         httpListenerContext.Response.ContentType = "application/json";
         httpListenerContext.Response.Headers.Add("Content-Encoding", "gzip");
+        httpListenerContext.Response.Headers.Add("Keep-Alive", "true");
+
         using var writer = new BinaryWriter(httpListenerContext.Response.OutputStream);
         writer.Write(buffer);
     }
